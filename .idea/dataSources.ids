@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="dataSourceStorage">
+  <data-source name="MySQL - fairinfo@localhost" uuid="75e47d26-8643-4dfc-b901-d69d0ce18408">
+    <database-info product="MySQL" version="5.5.5-10.1.13-MariaDB" jdbc-version="4.0" driver-name="MySQL Connector Java" driver-version="mysql-connector-java-5.1.35 ( Revision: 5fb9c5849535c13917c2cf9baaece6ef9693ef27 )">
+      <extra-name-characters>#@</extra-name-characters>
+      <identifier-quote-string>`</identifier-quote-string>
+    </database-info>
+    <case-sensitivity plain-identifiers="exact" quoted-identifiers="exact"/>
+    <database-model serializer="dbm" rdbms="MYSQL" format-version="2.5">
+      <schema id="1" name="fairinfo"/>
+      <table id="2" parent="1" name="fairs"/>
+      <column id="3" parent="2" name="id">
+        <mandatory>1</mandatory>
+        <data-type>bigint(20) unsigned</data-type>
+        <sequence-identity>1</sequence-identity>
+      </column>
+      <column id="4" parent="2" name="db_name">
+        <data-type>varchar(255)</data-type>
+      </column>
+      <column id="5" parent="2" name="title">
+        <data-type>varchar(255)</data-type>
+      </column>
+      <column id="6" parent="2" name="organizer">
+        <data-type>varchar(255)</data-type>
+      </column>
+      <column id="7" parent="2" name="location">
+        <data-type>varchar(255)</data-type>
+      </column>
+      <column id="8" parent="2" name="start_date">
+        <data-type>date</data-type>
+      </column>
+      <column id="9" parent="2" name="end_date">
+        <data-type>date</data-type>
+      </column>
+      <column id="10" parent="2" name="open_time">
+        <data-type>time</data-type>
+      </column>
+      <column id="11" parent="2" name="close_time">
+        <data-type>time</data-type>
+      </column>
+      <column id="12" parent="2" name="map_address">
+        <data-type>varchar(255)</data-type>
+      </column>
+      <index id="13" parent="2" name="id">
+        <columns>id</columns>
+        <desc-columns></desc-columns>
+        <unique>1</unique>
+      </index>
+      <key id="14" parent="2" name="id">
+        <columns>id</columns>
+        <underlying-index>id</underlying-index>
+      </key>
+      <key id="15" parent="2" name="PRIMARY">
+        <columns>id</columns>
+        <primary>1</primary>
+      </key>
+    </database-model>
+  </data-source>
+</component>
