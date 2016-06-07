@@ -56,4 +56,149 @@
       </key>
     </database-model>
   </data-source>
+  <data-source name="MySQL - book_fair_16@localhost" uuid="8b8ba5cd-37a4-438b-8f80-9b3476900e42">
+    <database-info product="MySQL" version="5.5.5-10.1.13-MariaDB" jdbc-version="4.0" driver-name="MySQL Connector Java" driver-version="mysql-connector-java-5.1.35 ( Revision: 5fb9c5849535c13917c2cf9baaece6ef9693ef27 )">
+      <extra-name-characters>#@</extra-name-characters>
+      <identifier-quote-string>`</identifier-quote-string>
+    </database-info>
+    <case-sensitivity plain-identifiers="exact" quoted-identifiers="exact"/>
+    <database-model serializer="dbm" rdbms="MYSQL" format-version="2.5">
+      <schema id="1" name="book_fair_16"/>
+      <table id="2" parent="1" name="employees"/>
+      <table id="3" parent="1" name="products"/>
+      <table id="4" parent="1" name="sells"/>
+      <table id="5" parent="1" name="stalls"/>
+      <table id="6" parent="1" name="users"/>
+      <column id="7" parent="2" name="id">
+        <mandatory>1</mandatory>
+        <data-type>int(11)</data-type>
+        <sequence-identity>1</sequence-identity>
+      </column>
+      <column id="8" parent="2" name="stall">
+        <data-type>varchar(20)</data-type>
+      </column>
+      <column id="9" parent="2" name="name">
+        <data-type>varchar(100)</data-type>
+      </column>
+      <column id="10" parent="2" name="description">
+        <data-type>varchar(255)</data-type>
+      </column>
+      <column id="11" parent="2" name="contact_no">
+        <data-type>varchar(255)</data-type>
+      </column>
+      <column id="12" parent="2" name="position">
+        <data-type>varchar(50)</data-type>
+      </column>
+      <column id="13" parent="2" name="salary">
+        <data-type>varchar(20)</data-type>
+      </column>
+      <key id="14" parent="2" name="PRIMARY">
+        <columns>id</columns>
+        <primary>1</primary>
+      </key>
+      <column id="15" parent="3" name="id">
+        <mandatory>1</mandatory>
+        <data-type>int(11)</data-type>
+        <sequence-identity>1</sequence-identity>
+      </column>
+      <column id="16" parent="3" name="stall">
+        <data-type>varchar(50)</data-type>
+      </column>
+      <column id="17" parent="3" name="name">
+        <data-type>varchar(255)</data-type>
+      </column>
+      <column id="18" parent="3" name="company">
+        <data-type>varchar(255)</data-type>
+      </column>
+      <column id="19" parent="3" name="description">
+        <data-type>varchar(500)</data-type>
+      </column>
+      <column id="20" parent="3" name="price">
+        <mandatory>1</mandatory>
+        <data-type>varchar(25)</data-type>
+      </column>
+      <column id="21" parent="3" name="availability">
+        <data-type>varchar(15)</data-type>
+      </column>
+      <column id="22" parent="3" name="image">
+        <data-type>longblob</data-type>
+      </column>
+      <key id="23" parent="3" name="PRIMARY">
+        <columns>id</columns>
+        <primary>1</primary>
+      </key>
+      <column id="24" parent="4" name="id">
+        <mandatory>1</mandatory>
+        <data-type>int(11)</data-type>
+        <sequence-identity>1</sequence-identity>
+      </column>
+      <column id="25" parent="4" name="stall">
+        <data-type>varchar(20)</data-type>
+      </column>
+      <column id="26" parent="4" name="product_name">
+        <data-type>varchar(255)</data-type>
+      </column>
+      <column id="27" parent="4" name="employee_name">
+        <data-type>varchar(100)</data-type>
+      </column>
+      <column id="28" parent="4" name="date">
+        <data-type>varchar(50)</data-type>
+      </column>
+      <column id="29" parent="4" name="time">
+        <data-type>varchar(50)</data-type>
+      </column>
+      <column id="30" parent="4" name="price">
+        <data-type>varchar(50)</data-type>
+      </column>
+      <column id="31" parent="4" name="description">
+        <data-type>varchar(255)</data-type>
+      </column>
+      <key id="32" parent="4" name="PRIMARY">
+        <columns>id</columns>
+        <primary>1</primary>
+      </key>
+      <column id="33" parent="5" name="id">
+        <mandatory>1</mandatory>
+        <data-type>int(11)</data-type>
+        <sequence-identity>1</sequence-identity>
+      </column>
+      <column id="34" parent="5" name="stall">
+        <data-type>varchar(50)</data-type>
+      </column>
+      <column id="35" parent="5" name="stall_name">
+        <data-type>varchar(255)</data-type>
+      </column>
+      <column id="36" parent="5" name="owner">
+        <data-type>varchar(255)</data-type>
+      </column>
+      <column id="37" parent="5" name="description">
+        <data-type>varchar(255)</data-type>
+      </column>
+      <column id="38" parent="5" name="location">
+        <data-type>varchar(255)</data-type>
+      </column>
+      <key id="39" parent="5" name="PRIMARY">
+        <columns>id</columns>
+        <primary>1</primary>
+      </key>
+      <column id="40" parent="6" name="id">
+        <mandatory>1</mandatory>
+        <data-type>int(11)</data-type>
+        <sequence-identity>1</sequence-identity>
+      </column>
+      <column id="41" parent="6" name="username">
+        <data-type>varchar(255)</data-type>
+      </column>
+      <column id="42" parent="6" name="password">
+        <data-type>varchar(255)</data-type>
+      </column>
+      <column id="43" parent="6" name="mobile_no">
+        <data-type>bigint(11)</data-type>
+      </column>
+      <key id="44" parent="6" name="PRIMARY">
+        <columns>id</columns>
+        <primary>1</primary>
+      </key>
+    </database-model>
+  </data-source>
 </component>

@@ -12,10 +12,15 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class AdminMainPage implements Initializable {
-    private static final String url = "jdbc:mysql://192.168.0.101:3306/";
-    private static final String username = "ajoy";
-    private static final String password = "ajoydas";
+    private static final String url = "jdbc:mysql://162.221.186.242:3306/buetian1_fairinfo";
+    private static final String username = "buetian1_ajoy";
+    private static final String password = "termjan2016";
     private int key = 0;
+
+    public static String db_name = null;
+    public static String fair_name = null;
+
+    Main main;
 
     public TextArea dbname;
     public TextArea title;
@@ -46,22 +51,26 @@ public class AdminMainPage implements Initializable {
         bdeletefair.setVisible(false);
         beditfair.setVisible(false);
         listFairs = getFairs();
-        for (Fair fair : listFairs) {
-            listFairsName.add(fair.getTitle());
+        if (listFairs != null) {
+            for (Fair fair : listFairs) {
+                listFairsName.add(fair.getTitle());
+            }
         }
 
         fairlist.setItems(listFairsName);
         fairlist.setOnMouseClicked(e -> {
-            dbname.setText(listFairs.get(fairlist.getSelectionModel().getSelectedIndex()).getDb_name());
-            title.setText(listFairs.get(fairlist.getSelectionModel().getSelectedIndex()).getTitle());
-            organizer.setText(listFairs.get(fairlist.getSelectionModel().getSelectedIndex()).getOrganizer());
-            location.setText(listFairs.get(fairlist.getSelectionModel().getSelectedIndex()).getLocation());
-            startdate.setText(String.valueOf(listFairs.get(fairlist.getSelectionModel().getSelectedIndex()).getStart_date()));
-            enddate.setText(String.valueOf(listFairs.get(fairlist.getSelectionModel().getSelectedIndex()).getEnd_date()));
-            opentime.setText(String.valueOf(listFairs.get(fairlist.getSelectionModel().getSelectedIndex()).getOpen_time()));
-            closetime.setText(String.valueOf(listFairs.get(fairlist.getSelectionModel().getSelectedIndex()).getClose_time()));
-            mapaddress.setText(listFairs.get(fairlist.getSelectionModel().getSelectedIndex()).getMap_address());
-            beditfair.setVisible(true);
+            if (listFairs != null) {
+                dbname.setText(listFairs.get(fairlist.getSelectionModel().getSelectedIndex()).getDb_name());
+                title.setText(listFairs.get(fairlist.getSelectionModel().getSelectedIndex()).getTitle());
+                organizer.setText(listFairs.get(fairlist.getSelectionModel().getSelectedIndex()).getOrganizer());
+                location.setText(listFairs.get(fairlist.getSelectionModel().getSelectedIndex()).getLocation());
+                startdate.setText(String.valueOf(listFairs.get(fairlist.getSelectionModel().getSelectedIndex()).getStart_date()));
+                enddate.setText(String.valueOf(listFairs.get(fairlist.getSelectionModel().getSelectedIndex()).getEnd_date()));
+                opentime.setText(String.valueOf(listFairs.get(fairlist.getSelectionModel().getSelectedIndex()).getOpen_time()));
+                closetime.setText(String.valueOf(listFairs.get(fairlist.getSelectionModel().getSelectedIndex()).getClose_time()));
+                mapaddress.setText(listFairs.get(fairlist.getSelectionModel().getSelectedIndex()).getMap_address());
+                beditfair.setVisible(true);
+            }
         });
     }
 
@@ -76,7 +85,7 @@ public class AdminMainPage implements Initializable {
 
     ObservableList<Fair> getFairs() {
         ObservableList<Fair> listFairs = FXCollections.observableArrayList();
-        String Url = url + "fairinfo";
+        String Url = url;
         try {
             Class.forName("com.mysql.jdbc.Driver");
             Connection con = DriverManager.getConnection(Url, username, password);
@@ -104,7 +113,8 @@ public class AdminMainPage implements Initializable {
 
                 return null;
             } else {
-
+                listFairs = FXCollections.observableArrayList();
+                listFairsName = FXCollections.observableArrayList();
                 while (rs.next()) {
                     Fair fair = new Fair();
                     fair.setId(rs.getInt("id"));
@@ -225,7 +235,7 @@ public class AdminMainPage implements Initializable {
 
             try {
                 Class.forName("com.mysql.jdbc.Driver");
-                String Url = url + "fairinfo";
+                String Url = url;
                 Connection con = DriverManager.getConnection(Url, username, password);
 
                 System.out.println("Connected");
@@ -307,94 +317,84 @@ public class AdminMainPage implements Initializable {
                 Connection con = DriverManager.getConnection(Url, username, password);
 
                 System.out.println("Connected");
-                PreparedStatement st = con.prepareStatement("CREATE DATABASE " + dbname.getText() + " ;\n");//
+                PreparedStatement st = con.prepareStatement("CREATE TABLE " + dbname.getText() + "_employees (\n" +
+                        "  id INT(11) NOT NULL AUTO_INCREMENT,\n" +
+                        "  stall VARCHAR(20) DEFAULT NULL,\n" +
+                        "  name VARCHAR(100) DEFAULT NULL,\n" +
+                        "  description VARCHAR(255) DEFAULT NULL,\n" +
+                        "  contact_no VARCHAR(255) DEFAULT NULL,\n" +
+                        "  position VARCHAR(50) DEFAULT NULL,\n" +
+                        "  salary VARCHAR(20) DEFAULT NULL,\n" +
+                        "  PRIMARY KEY (id)\n" +
+                        ")");
                 boolean rows = st.execute();
+                st = con.prepareStatement(
+                        "CREATE TABLE " + dbname.getText() + "_products (\n" +
+                                "  id INT(11) NOT NULL AUTO_INCREMENT,\n" +
+                                "  stall VARCHAR(50) DEFAULT NULL,\n" +
+                                "  name VARCHAR(255) DEFAULT NULL,\n" +
+                                "  company VARCHAR(255) DEFAULT NULL,\n" +
+                                "  description VARCHAR(500) DEFAULT NULL,\n" +
+                                "  price VARCHAR(25) NOT NULL,\n" +
+                                "  availability VARCHAR(15) DEFAULT NULL,\n" +
+                                "  image LONGBLOB,\n" +
+                                "  PRIMARY KEY (id)\n" +
+                                ")");
+                rows = st.execute();
+                st = con.prepareStatement(
+                        "CREATE TABLE " + dbname.getText() + "_sells (\n" +
+                                "  id INT(11) NOT NULL AUTO_INCREMENT,\n" +
+                                "  stall VARCHAR(20) DEFAULT NULL,\n" +
+                                "  product_name VARCHAR(255) DEFAULT NULL,\n" +
+                                "  employee_name VARCHAR(100) DEFAULT NULL,\n" +
+                                "  date VARCHAR(50) DEFAULT NULL,\n" +
+                                "  time VARCHAR(50) DEFAULT NULL,\n" +
+                                "  price VARCHAR(50) DEFAULT NULL,\n" +
+                                "  description VARCHAR(255) DEFAULT NULL,\n" +
+                                "  PRIMARY KEY (id)\n" +
+                                ")");
+                rows = st.execute();
+                st = con.prepareStatement(
+                        "CREATE TABLE " + dbname.getText() + "_stalls (\n" +
+                                "  id INT(11) NOT NULL AUTO_INCREMENT,\n" +
+                                "  stall VARCHAR(50) DEFAULT NULL,\n" +
+                                "  stall_name VARCHAR(255) DEFAULT NULL,\n" +
+                                "  owner VARCHAR(255) DEFAULT NULL,\n" +
+                                "  description VARCHAR(255) DEFAULT NULL,\n" +
+                                "  location VARCHAR(255) DEFAULT NULL,\n" +
+                                "  PRIMARY KEY (id)\n" +
+                                ") ");
+                rows = st.execute();
+                st = con.prepareStatement(
+                        "CREATE TABLE " + dbname.getText() + "_users (\n" +
+                                "  id INT(11) NOT NULL AUTO_INCREMENT,\n" +
+                                "  username VARCHAR(255) DEFAULT NULL,\n" +
+                                "  password VARCHAR(255) DEFAULT NULL,\n" +
+                                "  mobile_no BIGINT(11) DEFAULT NULL,\n" +
+                                "  PRIMARY KEY (id)\n" +
+                                ")");
+                rows = st.execute();
+                con.close();
+                con = DriverManager.getConnection(Url, username, password);
+                st = con.prepareStatement("INSERT INTO fairs" +
+                        "(db_name,title,organizer,location,start_date,end_date,open_time,close_time,map_address)" +
+                        "VALUES" +
+                        "(?,?,?,?,?,?,?,?,?)");
+
+                st.setString(1, dbname.getText());
+                st.setString(2, title.getText());
+                st.setString(3, organizer.getText());
+                st.setString(4, location.getText());
+                st.setString(5, startdate.getText());
+                st.setString(6, enddate.getText());
+                st.setString(7, opentime.getText());
+                st.setString(8, closetime.getText());
+                st.setString(9, mapaddress.getText());
+                System.out.println("Statement");
+
+                rows = st.execute();
 
                 System.out.println(rows);
-                con.close();
-                if (!rows) {
-                    db = true;
-                    System.out.println("Database Created");
-                    con = DriverManager.getConnection(Url + dbname.getText(), username, password);
-                    st = con.prepareStatement(
-                            "CREATE TABLE EMPLOYEES (\n" +
-                                    "  id INT(11) NOT NULL AUTO_INCREMENT,\n" +
-                                    "  stall VARCHAR(20) DEFAULT NULL,\n" +
-                                    "  name VARCHAR(100) DEFAULT NULL,\n" +
-                                    "  description VARCHAR(255) DEFAULT NULL,\n" +
-                                    "  contact_no VARCHAR(255) DEFAULT NULL,\n" +
-                                    "  position VARCHAR(50) DEFAULT NULL,\n" +
-                                    "  salary VARCHAR(20) DEFAULT NULL,\n" +
-                                    "  PRIMARY KEY (id)\n" +
-                                    ")");
-                    rows = st.execute();
-                    st = con.prepareStatement(
-                            "CREATE TABLE PRODUCTS (\n" +
-                                    "  id INT(11) NOT NULL AUTO_INCREMENT,\n" +
-                                    "  stall VARCHAR(50) DEFAULT NULL,\n" +
-                                    "  name VARCHAR(255) DEFAULT NULL,\n" +
-                                    "  company VARCHAR(255) DEFAULT NULL,\n" +
-                                    "  description VARCHAR(500) DEFAULT NULL,\n" +
-                                    "  price VARCHAR(25) NOT NULL,\n" +
-                                    "  availability VARCHAR(15) DEFAULT NULL,\n" +
-                                    "  image LONGBLOB,\n" +
-                                    "  PRIMARY KEY (id)\n" +
-                                    ")");
-                    rows = st.execute();
-                    st = con.prepareStatement(
-                            "CREATE TABLE SELLS (\n" +
-                                    "  id INT(11) NOT NULL AUTO_INCREMENT,\n" +
-                                    "  stall VARCHAR(20) DEFAULT NULL,\n" +
-                                    "  product_name VARCHAR(255) DEFAULT NULL,\n" +
-                                    "  employee_name VARCHAR(100) DEFAULT NULL,\n" +
-                                    "  date VARCHAR(50) DEFAULT NULL,\n" +
-                                    "  time VARCHAR(50) DEFAULT NULL,\n" +
-                                    "  price VARCHAR(50) DEFAULT NULL,\n" +
-                                    "  description VARCHAR(255) DEFAULT NULL,\n" +
-                                    "  PRIMARY KEY (id)\n" +
-                                    ")");
-                    rows = st.execute();
-                    st = con.prepareStatement(
-                            "CREATE TABLE STALLS (\n" +
-                                    "  id INT(11) NOT NULL AUTO_INCREMENT,\n" +
-                                    "  stall VARCHAR(50) DEFAULT NULL,\n" +
-                                    "  stall_name VARCHAR(255) DEFAULT NULL,\n" +
-                                    "  owner VARCHAR(255) DEFAULT NULL,\n" +
-                                    "  description VARCHAR(255) DEFAULT NULL,\n" +
-                                    "  location VARCHAR(255) DEFAULT NULL,\n" +
-                                    "  PRIMARY KEY (id)\n" +
-                                    ") ");
-                    rows = st.execute();
-                    st = con.prepareStatement(
-                            "CREATE TABLE USERS (\n" +
-                                    "  id INT(11) NOT NULL AUTO_INCREMENT,\n" +
-                                    "  username VARCHAR(255) DEFAULT NULL,\n" +
-                                    "  password VARCHAR(255) DEFAULT NULL,\n" +
-                                    "  mobile_no BIGINT(11) DEFAULT NULL,\n" +
-                                    "  PRIMARY KEY (id)\n" +
-                                    ")");
-                    rows = st.execute();
-                    con.close();
-                    con = DriverManager.getConnection(Url + "fairinfo", username, password);
-                    st = con.prepareStatement("INSERT INTO fairs" +
-                            "(db_name,title,organizer,location,start_date,end_date,open_time,close_time,map_address)" +
-                            "VALUES" +
-                            "(?,?,?,?,?,?,?,?,?)");
-
-                    st.setString(1, dbname.getText());
-                    st.setString(2, title.getText());
-                    st.setString(3, organizer.getText());
-                    st.setString(4, location.getText());
-                    st.setString(5, startdate.getText());
-                    st.setString(6, enddate.getText());
-                    st.setString(7, opentime.getText());
-                    st.setString(8, closetime.getText());
-                    st.setString(9, mapaddress.getText());
-                    System.out.println("Statement");
-
-                    rows = st.execute();
-
-                    System.out.println(rows);
 
                     if (!rows) {
                         System.out.println("Created");
@@ -407,40 +407,30 @@ public class AdminMainPage implements Initializable {
                         opentime.setText("");
                         closetime.setText("");
                         mapaddress.setText("");
+                    dbname.setEditable(false);
+                    bsaveedit.setVisible(false);
+                    bcanceledit.setVisible(false);
+                    baccounts.setVisible(false);
+                    bdeletefair.setVisible(false);
 
-                        title.setEditable(false);
-                        organizer.setEditable(false);
-                        location.setEditable(false);
-                        startdate.setEditable(false);
-                        enddate.setEditable(false);
-                        opentime.setEditable(false);
-                        closetime.setEditable(false);
-                        mapaddress.setEditable(false);
+                    beditfair.setVisible(true);
+                    baddfair.setVisible(true);
+                    fairlist.setDisable(false);
 
-                        bsaveedit.setVisible(false);
-                        bcanceledit.setVisible(false);
-                        baccounts.setVisible(false);
-                        bdeletefair.setVisible(false);
+                    listFairs = getFairs();
 
-                        beditfair.setVisible(true);
-                        baddfair.setVisible(true);
-                        fairlist.setDisable(false);
-
-                        listFairs = getFairs();
-
-                        listFairsName.clear();
-                        for (Fair fair : listFairs) {
-                            listFairsName.add(fair.getTitle());
-                        }
-                        fairlist.setItems(listFairsName);
-
+                    listFairsName.clear();
+                    for (Fair fair : listFairs) {
+                        listFairsName.add(fair.getTitle());
                     }
+                    fairlist.setItems(listFairsName);
+
                 }
 
             } catch (ClassNotFoundException | SQLException e) {
                 System.out.println("Failed");
                 e.printStackTrace();
-                if (db) {
+                /*if (db) {
                     System.out.println("Deleting Database");
                     Connection con = null;
                     try {
@@ -451,10 +441,10 @@ public class AdminMainPage implements Initializable {
                         e1.printStackTrace();
                     }
                 }
-
+*/
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("DATABASE ERROR");
-                alert.setHeaderText("Connection Lost or Database Name Matched");
+                alert.setHeaderText("Connection Lost.");
                 alert.setContentText("Please check your connection or try using different database name with valid dataset!");
                 alert.getDialogPane().setPrefSize(430, 150);
                 alert.showAndWait();
@@ -521,8 +511,57 @@ public class AdminMainPage implements Initializable {
         Connection con = null;
         try {
             con = DriverManager.getConnection(url, username, password);
-            PreparedStatement st = con.prepareStatement("DROP DATABASE " + dbname.getText() + " ;\n");
+            PreparedStatement st = con.prepareStatement("DROP TABLE " + dbname.getText() + "_employees ;\n");
             boolean rows = st.execute();
+            st = con.prepareStatement("DROP TABLE " + dbname.getText() + "_products ;\n");
+            rows = st.execute();
+            st = con.prepareStatement("DROP TABLE " + dbname.getText() + "_sells ;\n");
+            rows = st.execute();
+
+            st = con.prepareStatement("DROP TABLE " + dbname.getText() + "_stalls ;\n");
+            rows = st.execute();
+            st = con.prepareStatement("DROP TABLE " + dbname.getText() + "_users ;\n");
+            rows = st.execute();
+
+            st = con.prepareStatement("DELETE FROM fairs WHERE db_name=?");
+            st.setString(1, dbname.getText());
+            rows = st.execute();
+
+            if(!rows)
+            {
+                dbname.setText("");
+                title.setText("");
+                organizer.setText("");
+                location.setText("");
+                startdate.setText("");
+                enddate.setText("");
+                opentime.setText("");
+                closetime.setText("");
+                mapaddress.setText("");
+                dbname.setEditable(false);
+                bsaveedit.setVisible(false);
+                bcanceledit.setVisible(false);
+                baccounts.setVisible(false);
+                bdeletefair.setVisible(false);
+
+                beditfair.setVisible(true);
+                baddfair.setVisible(true);
+                fairlist.setDisable(false);
+
+                listFairs = getFairs();
+                if(listFairs!=null) {
+                    listFairsName.clear();
+                    for (Fair fair : listFairs) {
+                        listFairsName.add(fair.getTitle());
+                    }
+                    fairlist.setItems(listFairsName);
+                }
+                else
+                {
+                    fairlist.getSelectionModel().clearSelection();
+                    fairlist.getItems().clear();
+                }
+            }
         } catch (SQLException e1) {
             e1.printStackTrace();
             alert = new Alert(Alert.AlertType.ERROR);
@@ -535,7 +574,17 @@ public class AdminMainPage implements Initializable {
     }
 
     public void accountClicked(ActionEvent actionEvent) {
-
+        try {
+            db_name = listFairs.get(fairlist.getSelectionModel().getSelectedIndex()).getDb_name();
+            fair_name = listFairs.get(fairlist.getSelectionModel().getSelectedIndex()).getTitle();
+            main.accountPage();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
+
+    public void setMain(Main main) {
+        this.main = main;
+    }
 }
