@@ -2,6 +2,8 @@ package sample;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -42,6 +44,7 @@ public class Accounts implements Initializable {
 
     ObservableList<Seller> listSeller = FXCollections.observableArrayList();
     ObservableList<String> listUsername = FXCollections.observableArrayList();
+    private Service<Void> service;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -56,22 +59,55 @@ public class Accounts implements Initializable {
         bcanceledit.setVisible(false);
         bdelete.setVisible(false);
         bedit.setVisible(false);
-        listSeller = getSellers();
-        if(listSeller!=null) {
-            for (Seller seller : listSeller) {
-                listUsername.add(seller.getUsername());
+
+
+
+
+        service = new Service<Void>() {
+            @Override
+            protected Task<Void> createTask() {
+
+                return new Task<Void>() {
+
+                    @Override
+                    protected Void call() throws Exception {
+                        listSeller = getSellers();
+                        if(listSeller!=null) {
+                            for (Seller seller : listSeller) {
+                                listUsername.add(seller.getUsername());
+                            }
+                        }
+                        accountlist.setItems(listUsername);
+                        return null;
+                    }
+                };
             }
+
+
+
+            @Override
+            protected void cancelled() {
+                super.cancelled();
+            }
+        };
+
+        service.start();
+
+        try {
+            accountlist.setOnMouseClicked(e -> {
+                if (listSeller != null) {
+                    user.setText(listSeller.get(accountlist.getSelectionModel().getSelectedIndex()).getUsername());
+                    pass.setText(listSeller.get(accountlist.getSelectionModel().getSelectedIndex()).getPassword());
+                    contact.setText(String.valueOf(listSeller.get(accountlist.getSelectionModel().getSelectedIndex()).getMobileno()));
+                    latlng.setText(listSeller.get(accountlist.getSelectionModel().getSelectedIndex()).getLatlng());
+                    bedit.setVisible(true);
+                }
+            });
         }
-        accountlist.setItems(listUsername);
-        accountlist.setOnMouseClicked(e -> {
-            if(listSeller!=null) {
-                user.setText(listSeller.get(accountlist.getSelectionModel().getSelectedIndex()).getUsername());
-                pass.setText(listSeller.get(accountlist.getSelectionModel().getSelectedIndex()).getPassword());
-                contact.setText(String.valueOf(listSeller.get(accountlist.getSelectionModel().getSelectedIndex()).getMobileno()));
-                latlng.setText(listSeller.get(accountlist.getSelectionModel().getSelectedIndex()).getLatlng());
-                bedit.setVisible(true);
-            }
-        });
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
 
 
     }
@@ -252,187 +288,210 @@ public class Accounts implements Initializable {
             return;
         }
 
+        service = new Service<Void>() {
+            @Override
+            protected Task<Void> createTask() {
 
-        if (key == 0) {
+                return new Task<Void>() {
 
-            try {
-                Class.forName("com.mysql.jdbc.Driver");
-                String Url = url;
-                Connection con = DriverManager.getConnection(Url, username, password);
+                    @Override
+                    protected Void call() throws Exception {
 
-                System.out.println("Connected");
-                PreparedStatement st = con.prepareStatement("UPDATE "+ db_name+"_users SET password=?,mobile_no=? WHERE id=?");
+                        if (key == 0) {
 
-                st.setString(1, editpass.getText());
-                st.setString(2, contact.getText());
-                st.setInt(3, listSeller.get(accountlist.getSelectionModel().getSelectedIndex()).getId());
+                            try {
+                                Class.forName("com.mysql.jdbc.Driver");
+                                String Url = url;
+                                Connection con = DriverManager.getConnection(Url, username, password);
 
-                System.out.println("Statement");
+                                System.out.println("Connected");
+                                PreparedStatement st = con.prepareStatement("UPDATE "+ db_name+"_users SET password=?,mobile_no=? WHERE id=?");
 
-                int rows = st.executeUpdate();
+                                st.setString(1, editpass.getText());
+                                st.setString(2, contact.getText());
+                                st.setInt(3, listSeller.get(accountlist.getSelectionModel().getSelectedIndex()).getId());
 
-                System.out.println(rows);
+                                System.out.println("Statement");
 
-                if (rows == 1) {
-                    PreparedStatement newst = con.prepareStatement("UPDATE "+ db_name+"_stalls SET location=? WHERE stall=?");
-                    newst.setString(1, latlng.getText());
-                    newst.setString(2, user.getText());
-                    int rownum = newst.executeUpdate();
-                    //rscount=st.executeQuery();
-                    if (rownum == 0) {
-                        System.out.println(rows);
-                        return;
+                                int rows = st.executeUpdate();
+
+                                System.out.println(rows);
+
+                                if (rows == 1) {
+                                    PreparedStatement newst = con.prepareStatement("UPDATE "+ db_name+"_stalls SET location=? WHERE stall=?");
+                                    newst.setString(1, latlng.getText());
+                                    newst.setString(2, user.getText());
+                                    int rownum = newst.executeUpdate();
+                                    //rscount=st.executeQuery();
+                                    if (rownum == 0) {
+                                        System.out.println(rows);
+                                        return null;
+                                    }
+
+                                    System.out.println("Updated");
+                                    user.setText("");
+                                    pass.setText("");
+                                    editpass.setText("");
+                                    contact.setText("");
+                                    latlng.setText("");
+
+                                    pass.setVisible(true);
+                                    user.setEditable(false);
+                                    contact.setEditable(false);
+                                    latlng.setEditable(false);
+                                    bsaveedit.setVisible(false);
+                                    bcanceledit.setVisible(false);
+                                    editpass.setVisible(false);
+                                    bdelete.setVisible(false);
+
+                                    bedit.setVisible(true);
+                                    badd.setVisible(true);
+                                    accountlist.setDisable(false);
+
+                                    listSeller = getSellers();
+
+                                    listUsername.clear();
+                                    for (Seller seller : listSeller) {
+                                        listUsername.add(seller.getUsername());
+                                    }
+
+                                    accountlist.setItems(listUsername);
+                                }
+
+                            } catch (ClassNotFoundException | SQLException e) {
+                                System.out.println("Failed");
+                                e.printStackTrace();
+                                Alert alert = new Alert(Alert.AlertType.ERROR);
+                                alert.setTitle("DATABASE ERROR");
+                                alert.setHeaderText("Connection Lost");
+                                alert.setContentText("Please check your connection and try again with valid dataset!");
+                                alert.getDialogPane().setPrefSize(430, 150);
+                                alert.showAndWait();
+                            }
+                        } else if (key == 1) {
+                            boolean userEntry = false;
+                            if (!checkUser()) {
+                                Alert alert = new Alert(Alert.AlertType.ERROR);
+                                alert.setTitle("USER ENTRY");
+                                alert.setHeaderText("Username matched!");
+                                alert.setContentText("Username already exists. Please try again by changing it.");
+                                alert.getDialogPane().setPrefSize(430, 150);
+                                alert.showAndWait();
+                                return null;
+                            }
+
+                            try {
+                                Class.forName("com.mysql.jdbc.Driver");
+                                String Url = url;
+                                Connection con = DriverManager.getConnection(Url, username, password);
+
+                                System.out.println("Connected");
+                                PreparedStatement st = con.prepareStatement("INSERT INTO "+ db_name+"_users" +
+                                        "(username,password,mobile_no)" +
+                                        "VALUES" +
+                                        "(?,?,?)");
+
+                                st.setString(1, user.getText());
+                                st.setString(2, editpass.getText());
+                                st.setString(3, contact.getText());
+
+                                boolean rows = st.execute();
+
+                                System.out.println(rows);
+
+                                if (!rows) {
+                                    userEntry = true;
+                                    PreparedStatement newst = con.prepareStatement("INSERT INTO "+ db_name+"_stalls" +
+                                            "(stall,stall_name,owner,description,location)" +
+                                            "VALUES" +
+                                            "(?,?,?,?,?)");
+                                    newst.setString(1, user.getText());
+                                    newst.setString(2, user.getText());
+                                    newst.setString(3, user.getText());
+                                    newst.setString(4, user.getText());
+                                    newst.setString(5, latlng.getText());
+                                    boolean rownum = newst.execute();
+
+                                    if (rownum) {
+                                        System.out.println(rownum);
+                                        return null;
+                                    }
+
+
+                                    System.out.println("Created");
+                                    user.setText("");
+                                    pass.setText("");
+                                    editpass.setText("");
+                                    contact.setText("");
+                                    latlng.setText("");
+
+                                    user.setEditable(false);
+                                    pass.setVisible(true);
+                                    contact.setEditable(false);
+                                    latlng.setEditable(false);
+
+                                    bsaveedit.setVisible(false);
+                                    bcanceledit.setVisible(false);
+                                    editpass.setVisible(false);
+                                    bedit.setVisible(true);
+                                    badd.setVisible(true);
+                                    accountlist.setDisable(false);
+
+                                    listSeller = getSellers();
+
+
+                                    if(listUsername!=null)listUsername.clear();
+
+                                    for (Seller seller : listSeller) {
+                                        System.out.println(seller);
+
+                                        listUsername.add(seller.getUsername());
+                                    }
+
+                                    accountlist.setItems(listUsername);
+
+                                }
+                            } catch (ClassNotFoundException | SQLException e) {
+                                System.out.println("Failed");
+                                e.printStackTrace();
+                                if (userEntry) {
+                                    System.out.println("Deleting User");
+                                    Connection con = null;
+                                    try {
+                                        con = DriverManager.getConnection(url, username, password);
+                                        PreparedStatement st = con.prepareStatement("DELETE FROM "+ db_name+"_users WHERE username=?");
+                                        st.setString(1, user.getText());
+                                        boolean rows = st.execute();
+                                    } catch (SQLException e1) {
+                                        e1.printStackTrace();
+                                    }
+                                }
+
+                                Alert alert = new Alert(Alert.AlertType.ERROR);
+                                alert.setTitle("DATABASE ERROR");
+                                alert.setHeaderText("Connection Lost or Database Name Matched");
+                                alert.setContentText("Please check your connection or try using different database name with valid dataset!");
+                                alert.getDialogPane().setPrefSize(430, 150);
+                                alert.showAndWait();
+
+                            }
+                        }
+
+
+                        return null;
                     }
-
-                    System.out.println("Updated");
-                    user.setText("");
-                    pass.setText("");
-                    editpass.setText("");
-                    contact.setText("");
-                    latlng.setText("");
-
-                    pass.setVisible(true);
-                    user.setEditable(false);
-                    contact.setEditable(false);
-                    latlng.setEditable(false);
-                    bsaveedit.setVisible(false);
-                    bcanceledit.setVisible(false);
-                    editpass.setVisible(false);
-                    bdelete.setVisible(false);
-
-                    bedit.setVisible(true);
-                    badd.setVisible(true);
-                    accountlist.setDisable(false);
-
-                    listSeller = getSellers();
-
-                    listUsername.clear();
-                    for (Seller seller : listSeller) {
-                        listUsername.add(seller.getUsername());
-                    }
-
-                    accountlist.setItems(listUsername);
-                }
-
-            } catch (ClassNotFoundException | SQLException e) {
-                System.out.println("Failed");
-                e.printStackTrace();
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("DATABASE ERROR");
-                alert.setHeaderText("Connection Lost");
-                alert.setContentText("Please check your connection and try again with valid dataset!");
-                alert.getDialogPane().setPrefSize(430, 150);
-                alert.showAndWait();
+                };
             }
-        } else if (key == 1) {
-            boolean userEntry = false;
-            if (!checkUser()) {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("USER ENTRY");
-                alert.setHeaderText("Username matched!");
-                alert.setContentText("Username already exists. Please try again by changing it.");
-                alert.getDialogPane().setPrefSize(430, 150);
-                alert.showAndWait();
-                return;
+
+
+
+            @Override
+            protected void cancelled() {
+                super.cancelled();
             }
+        };
 
-            try {
-                Class.forName("com.mysql.jdbc.Driver");
-                String Url = url;
-                Connection con = DriverManager.getConnection(Url, username, password);
-
-                System.out.println("Connected");
-                PreparedStatement st = con.prepareStatement("INSERT INTO "+ db_name+"_users" +
-                        "(username,password,mobile_no)" +
-                        "VALUES" +
-                        "(?,?,?)");
-
-                st.setString(1, user.getText());
-                st.setString(2, editpass.getText());
-                st.setString(3, contact.getText());
-
-                boolean rows = st.execute();
-
-                System.out.println(rows);
-
-                if (!rows) {
-                    userEntry = true;
-                    PreparedStatement newst = con.prepareStatement("INSERT INTO "+ db_name+"_stalls" +
-                            "(stall,stall_name,owner,description,location)" +
-                            "VALUES" +
-                            "(?,?,?,?,?)");
-                    newst.setString(1, user.getText());
-                    newst.setString(2, user.getText());
-                    newst.setString(3, user.getText());
-                    newst.setString(4, user.getText());
-                    newst.setString(5, latlng.getText());
-                    boolean rownum = newst.execute();
-
-                    if (rownum) {
-                        System.out.println(rownum);
-                        return;
-                    }
-
-
-                    System.out.println("Created");
-                    user.setText("");
-                    pass.setText("");
-                    editpass.setText("");
-                    contact.setText("");
-                    latlng.setText("");
-
-                    user.setEditable(false);
-                    pass.setVisible(true);
-                    contact.setEditable(false);
-                    latlng.setEditable(false);
-
-                    bsaveedit.setVisible(false);
-                    bcanceledit.setVisible(false);
-                    editpass.setVisible(false);
-                    bedit.setVisible(true);
-                    badd.setVisible(true);
-                    accountlist.setDisable(false);
-
-                    listSeller = getSellers();
-
-
-                    if(listUsername!=null)listUsername.clear();
-
-                    for (Seller seller : listSeller) {
-                        System.out.println(seller);
-
-                        listUsername.add(seller.getUsername());
-                    }
-
-                    accountlist.setItems(listUsername);
-
-                }
-            } catch (ClassNotFoundException | SQLException e) {
-                System.out.println("Failed");
-                e.printStackTrace();
-                if (userEntry) {
-                    System.out.println("Deleting User");
-                    Connection con = null;
-                    try {
-                        con = DriverManager.getConnection(url, username, password);
-                        PreparedStatement st = con.prepareStatement("DELETE FROM "+ db_name+"_users WHERE username=?");
-                        st.setString(1, user.getText());
-                        boolean rows = st.execute();
-                    } catch (SQLException e1) {
-                        e1.printStackTrace();
-                    }
-                }
-
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("DATABASE ERROR");
-                alert.setHeaderText("Connection Lost or Database Name Matched");
-                alert.setContentText("Please check your connection or try using different database name with valid dataset!");
-                alert.getDialogPane().setPrefSize(430, 150);
-                alert.showAndWait();
-
-            }
-        }
-
+        service.start();
     }
 
     public void cancelEditClicked(ActionEvent actionEvent) {
@@ -461,9 +520,9 @@ public class Accounts implements Initializable {
             latlng.setText("");
         }
     }
-
+    Alert alert;
     public void deleteClicked(ActionEvent actionEvent) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("ARE YOU SURE?");
         alert.setContentText("Are you sure you want to delete the account and associate data?");
         alert.getDialogPane().setPrefSize(430, 150);
@@ -472,80 +531,105 @@ public class Accounts implements Initializable {
             System.out.println("Pressed Cancel");
             return;
         }
-        System.out.println("Deleting Database");
-        Connection con = null;
-        boolean data = false;
-        try {
-            con = DriverManager.getConnection(url, username, password);
-            PreparedStatement st = con.prepareStatement("DELETE FROM "+ db_name+"_sells WHERE stall=?");
-            st.setString(1, user.getText());
-            boolean rows = st.execute();
-            data = true;
-            st = con.prepareStatement("DELETE FROM "+ db_name+"_employees WHERE stall=?");
-            st.setString(1, user.getText());
-            rows = st.execute();
 
-            st = con.prepareStatement("DELETE FROM "+ db_name+"_products WHERE stall=?");
-            st.setString(1, user.getText());
-            rows = st.execute();
+        service = new Service<Void>() {
+            @Override
+            protected Task<Void> createTask() {
 
-            st = con.prepareStatement("DELETE FROM "+ db_name+"_stalls WHERE stall=?");
-            st.setString(1, user.getText());
-            rows = st.execute();
+                return new Task<Void>() {
 
-            st = con.prepareStatement("DELETE FROM "+ db_name+"_users WHERE username=?");
-            st.setString(1, user.getText());
-            rows = st.execute();
+                    @Override
+                    protected Void call() throws Exception {
 
-            data = false;
-        } catch (SQLException e1) {
-            e1.printStackTrace();
-            alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("DATABASE ERROR");
-            alert.setHeaderText("Connection Lost .");
-            alert.setContentText("Please check your connection and Try again!");
-            alert.getDialogPane().setPrefSize(430, 150);
-            alert.showAndWait();
-        }
+                        System.out.println("Deleting Database");
+                        Connection con = null;
+                        boolean data = false;
+                        try {
+                            con = DriverManager.getConnection(url, username, password);
+                            PreparedStatement st = con.prepareStatement("DELETE FROM "+ db_name+"_sells WHERE stall=?");
+                            st.setString(1, user.getText());
+                            boolean rows = st.execute();
+                            data = true;
+                            st = con.prepareStatement("DELETE FROM "+ db_name+"_employees WHERE stall=?");
+                            st.setString(1, user.getText());
+                            rows = st.execute();
 
-        if(data)
-        {
-            alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("DATABASE ERROR");
-            alert.setHeaderText("Connection lost while deleting. Data related to the account may have beeen damaged!");
-            alert.setContentText("Please check your connection and Try again!");
-            alert.getDialogPane().setPrefSize(430, 150);
-            alert.showAndWait();
-        }
+                            st = con.prepareStatement("DELETE FROM "+ db_name+"_products WHERE stall=?");
+                            st.setString(1, user.getText());
+                            rows = st.execute();
 
-        user.setEditable(false);
-        pass.setVisible(true);
-        contact.setEditable(false);
+                            st = con.prepareStatement("DELETE FROM "+ db_name+"_stalls WHERE stall=?");
+                            st.setString(1, user.getText());
+                            rows = st.execute();
 
-        bsaveedit.setVisible(false);
-        bcanceledit.setVisible(false);
-        editpass.setVisible(false);
-        bedit.setVisible(true);
-        badd.setVisible(true);
-        accountlist.setDisable(false);
+                            st = con.prepareStatement("DELETE FROM "+ db_name+"_users WHERE username=?");
+                            st.setString(1, user.getText());
+                            rows = st.execute();
 
-        listSeller = getSellers();
+                            data = false;
+                        } catch (SQLException e1) {
+                            e1.printStackTrace();
+                            alert = new Alert(Alert.AlertType.ERROR);
+                            alert.setTitle("DATABASE ERROR");
+                            alert.setHeaderText("Connection Lost .");
+                            alert.setContentText("Please check your connection and Try again!");
+                            alert.getDialogPane().setPrefSize(430, 150);
+                            alert.showAndWait();
+                        }
 
-        if(listSeller!=null) {
-            if (listUsername != null) listUsername.clear();
+                        if(data)
+                        {
+                            alert = new Alert(Alert.AlertType.ERROR);
+                            alert.setTitle("DATABASE ERROR");
+                            alert.setHeaderText("Connection lost while deleting. Data related to the account may have beeen damaged!");
+                            alert.setContentText("Please check your connection and Try again!");
+                            alert.getDialogPane().setPrefSize(430, 150);
+                            alert.showAndWait();
+                        }
 
-            for (Seller seller : listSeller) {
-                System.out.println(seller);
+                        user.setEditable(false);
+                        pass.setVisible(true);
+                        contact.setEditable(false);
 
-                listUsername.add(seller.getUsername());
+                        bsaveedit.setVisible(false);
+                        bcanceledit.setVisible(false);
+                        editpass.setVisible(false);
+                        bedit.setVisible(true);
+                        badd.setVisible(true);
+                        accountlist.setDisable(false);
+
+                        listSeller = getSellers();
+
+                        if(listSeller!=null) {
+                            if (listUsername != null) listUsername.clear();
+
+                            for (Seller seller : listSeller) {
+                                System.out.println(seller);
+
+                                listUsername.add(seller.getUsername());
+                            }
+                            accountlist.setItems(listUsername);
+                        }
+                        else
+                        {
+                            accountlist.getSelectionModel().clearSelection();
+                            accountlist.getItems().clear();
+                        }
+
+                        return null;
+                    }
+                };
             }
-            accountlist.setItems(listUsername);
-        }
-        else
-        {
-            accountlist.getSelectionModel().clearSelection();
-            accountlist.getItems().clear();
-        }
+
+
+
+            @Override
+            protected void cancelled() {
+                super.cancelled();
+            }
+        };
+
+        service.start();
 
     }
 

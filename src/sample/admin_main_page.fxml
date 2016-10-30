@@ -14,6 +14,7 @@
 <Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="650.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.AdminMainPage">
    <children>
          <ListView fx:id="fairlist" layoutX="39.0" layoutY="101.0" maxHeight="-Infinity" maxWidth="-Infinity" nodeOrientation="LEFT_TO_RIGHT" prefHeight="382.0" prefWidth="305.0" style="-fx-fixed-cell-size: 35;" />
+      <ProgressIndicator fx:id="progressindicator" layoutX="350.0" layoutY="235.0" prefHeight="148.0" prefWidth="147.0" progress="0.0" />
          <GridPane layoutX="369.0" layoutY="36.0" prefHeight="502.0" prefWidth="387.0">
            <columnConstraints>
              <ColumnConstraints hgrow="SOMETIMES" maxWidth="170.0" minWidth="10.0" prefWidth="123.0" />
